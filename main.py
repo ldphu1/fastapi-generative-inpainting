@@ -1,49 +1,107 @@
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 import uvicorn
-import cv2
 import numpy as np
+from PIL import Image
 import io
 import base64
-from PIL import Image
+from contextlib import asynccontextmanager
+
 from ai_engine import InpaintingApp
 
-app = FastAPI(title="AI Inpainting API", version="1.1")
-engine = None
+app_state = {}
 
 
-@app.on_event("startup")
-def startup():
-    global engine
-    engine = InpaintingApp()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Loading models... This may take a while.")
+    app_state["model"] = InpaintingApp()
+    print("Models loaded successfully!")
+    yield
+    app_state.clear()
 
 
-def to_b64(img):
-    buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=95)
-    return base64.b64encode(buf.getvalue()).decode("utf-8")
+app = FastAPI(title="Inpainting API", lifespan=lifespan)
 
 
-@app.post("/api/v1/replace")
-async def replace(image: UploadFile = File(...), mask: UploadFile = File(...), prompt: str = Form("")):
+def pil_to_base64(img: Image.Image) -> str:
+    if img is None:
+        return None
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+
+async def prepare_image_data(image_file: UploadFile, mask_file: UploadFile):
+    image_bytes = await image_file.read()
+    img_pil = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    bg_np = np.array(img_pil)
+
+    mask_bytes = await mask_file.read()
+    mask_pil = Image.open(io.BytesIO(mask_bytes))
+    mask_np = np.array(mask_pil)
+
+    image_data = {
+        "background": bg_np,
+        "layers": [mask_np]
+    }
+    return image_data
+
+
+@app.post("/api/remove")
+async def remove_object_api(
+        image: UploadFile = File(...),
+        mask: UploadFile = File(...)
+):
     try:
-        img_raw = cv2.imdecode(np.frombuffer(await image.read(), np.uint8), 1)
-        img_rgb = cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
-        mask_raw = cv2.imdecode(np.frombuffer(await mask.read(), np.uint8), 0)
-        _, mask_bin = cv2.threshold(mask_raw, 127, 1, cv2.THRESH_BINARY)
+        model = app_state.get("model")
+        if not model:
+            raise HTTPException(status_code=503, detail="Model is not loaded yet")
 
-        m_lama, m_sdxl, m_blend = engine.refine_mask(mask_bin)
-        img_pil = Image.fromarray(img_rgb)
+        image_data = await prepare_image_data(image, mask)
 
-        lama_res = engine.lama(img_pil, Image.fromarray(m_lama))
-        engine.flush_memory()
+        lama_img, final_img = model.remove_object(image_data)
 
-        final_res = engine.stable_diffusion(lama_res, Image.fromarray(m_sdxl), prompt)
+        if lama_img is None:
+            raise HTTPException(status_code=400, detail="Invalid image or mask")
 
-        return JSONResponse({"status": "ok", "image": to_b64(final_res)})
+        return JSONResponse(content={
+            "status": "success",
+            "lama_image": pil_to_base64(lama_img),
+            "final_image": pil_to_base64(final_img) if final_img else None
+        })
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/replace")
+async def replace_object_api(
+        image: UploadFile = File(...),
+        mask: UploadFile = File(...),
+        prompt: str = Form("")
+):
+    try:
+        model = app_state.get("model")
+        if not model:
+            raise HTTPException(status_code=503, detail="Model is not loaded yet")
+
+        image_data = await prepare_image_data(image, mask)
+
+        lama_img, final_img = model.replace_object(image_data, prompt)
+
+        if lama_img is None or final_img is None:
+            raise HTTPException(status_code=400, detail="Invalid image or mask")
+
+        return JSONResponse(content={
+            "status": "success",
+            "lama_image": pil_to_base64(lama_img),
+            "final_image": pil_to_base64(final_img)
+        })
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=False)
