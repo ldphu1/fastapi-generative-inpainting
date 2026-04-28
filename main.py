@@ -41,11 +41,16 @@ async def prepare_image_data(image_file: UploadFile, mask_file: UploadFile):
     mask_pil = Image.open(io.BytesIO(mask_bytes))
     mask_np = np.array(mask_pil)
 
-    image_data = {
-        "background": bg_np,
-        "layers": [mask_np]
-    }
-    return image_data
+    if len(mask_np.shape) == 3:
+        if mask_np.shape[2] == 4:
+            mask_np = mask_np[:, :, 3]
+        else:
+            mask_pil_gray = mask_pil.convert("L")
+            mask_np = np.array(mask_pil_gray)
+
+    mask_np = (mask_np > 0).astype(np.uint8)
+
+    return bg_np, mask_np
 
 
 @app.post("/api/remove")
@@ -58,9 +63,9 @@ async def remove_object_api(
         if not model:
             raise HTTPException(status_code=503, detail="Model is not loaded yet")
 
-        image_data = await prepare_image_data(image, mask)
+        bg_np, mask_np = await prepare_image_data(image, mask)
 
-        lama_img, final_img = model.remove_object(image_data)
+        lama_img = model.remove_object(bg_np, mask_np)
 
         if lama_img is None:
             raise HTTPException(status_code=400, detail="Invalid image or mask")
@@ -68,7 +73,7 @@ async def remove_object_api(
         return JSONResponse(content={
             "status": "success",
             "lama_image": pil_to_base64(lama_img),
-            "final_image": pil_to_base64(final_img) if final_img else None
+            "final_image": None  # Remove không dùng SDXL nên không có final_image
         })
 
     except Exception as e:
@@ -86,9 +91,9 @@ async def replace_object_api(
         if not model:
             raise HTTPException(status_code=503, detail="Model is not loaded yet")
 
-        image_data = await prepare_image_data(image, mask)
+        bg_np, mask_np = await prepare_image_data(image, mask)
 
-        lama_img, final_img = model.replace_object(image_data, prompt)
+        lama_img, final_img = model.replace_object(bg_np, mask_np, prompt)
 
         if lama_img is None or final_img is None:
             raise HTTPException(status_code=400, detail="Invalid image or mask")
@@ -104,4 +109,5 @@ async def replace_object_api(
 
 
 if __name__ == "__main__":
-    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=False)
+    # Sửa thành "main:app" vì file hiện tại tên là main.py
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
