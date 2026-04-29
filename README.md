@@ -1,10 +1,11 @@
-# Fastapi-Generative-Inpainting
+<img width="225" height="225" alt="image (1)" src="https://github.com/user-attachments/assets/9673e4c5-20db-4c08-8e05-70d7f8db3933" /># Fastapi-Generative-Inpainting
 
 This project provides a powerful generative inpainting system that allows users to remove objects or replace objects within images. By combining state-of-the-art Deep Learning models including LaMa, Stable Diffusion XL (SDXL), and BLIP, the project offers both a RESTful API and an interactive Web UI.
 
 <p>
-   <img width="33%" height="230" alt="dog_mask" src="https://github.com/user-attachments/assets/554a24b7-80f9-4549-adf9-596518d45148" />
-   <img width="33%" height="225" alt="image" src="https://github.com/user-attachments/assets/5f4dcba3-d957-4062-a8e8-1b8aa2f9a6a5" />
+   <img width="225" height="230" alt="dog_mask" src="https://github.com/user-attachments/assets/554a24b7-80f9-4549-adf9-596518d45148" />
+   <img width="225%" height="225" alt="image" src="https://github.com/user-attachments/assets/5f4dcba3-d957-4062-a8e8-1b8aa2f9a6a5" />
+   <img width="225" height="225" alt="image (1)" src="https://github.com/user-attachments/assets/a0ee666b-d758-4bf1-a3cf-84042bd19a1f" />
 </p>
 
 # Key Features
