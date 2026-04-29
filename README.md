@@ -18,3 +18,23 @@ This project provides a powerful generative inpainting system that allows users 
    ```bash
    python main.py
    ```
+   Note: The first run will take some time to download the model weights (SDXL, BLIP, etc.) from HuggingFace.
+
+   * API Base URL: (`http://localhost:8000`)
+
+   * Swagger Documentation: (`http://localhost:8000/docs`)
+
+   Primary Endpoints:
+
+   * (`POST /api/remove`): Accepts image and mask files via form-data. Returns the inpainted result as a Base64 string.
+
+   * (`POST /api/replace`): Accepts image, mask, and an optional prompt. Returns the generated result as a Base64 string.
+     
+2. Running the Web UI Demo (Gradio)
+   
+   For an interactive experience with a brush tool, run:
+   ```bash
+   python demo/gradio_app.py
+   ```
+   Access the interface at the local URL provided in your terminal (typically (`http://127.0.0.1:7860`)).
+   
