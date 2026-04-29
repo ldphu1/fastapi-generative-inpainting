@@ -10,6 +10,26 @@ This project provides a powerful generative inpainting system that allows users 
 * (`main.py`): The entry point for the FastAPI server, providing (`/api/remove`) and (`/api/replace`) endpoints.
 * (`ai_engine.py`): The core AI engine containing the (`InpaintingApp class`), which handles model loading, mask refinement, and image processing logic.
 * (`demo/gradio_app.py`): A standalone Gradio application for a web-based demo featuring a brush tool for manual mask selection.
+
+# System Architecture
+   ```bash
+   %% Remove Pipeline
+    Action -->|Remove Object| Refine1[Refine Mask]
+    Refine1 --> LaMa1[Simple LaMa Model]
+    LaMa1 --> Output[Final Image]
+    
+    %% Replace Pipeline
+    Action -->|Replace Object| CheckPrompt{Prompt Provided?}
+    CheckPrompt -->|No| BLIP[BLIP: Auto-Generate Prompt] --> Enrich[Enrich Prompt]
+    CheckPrompt -->|Yes| Enrich[Enrich Prompt]
+    
+    Enrich --> Refine2[Refine Masks]
+    Refine2 --> LaMa2[LaMa: Erase base object]
+    LaMa2 --> SDXL[SDXL: Generate new object]
+    SDXL --> Blend[Hybrid Blending]
+    Blend --> Output
+   ```
+
 # Usage
 1. Running the API Server (FastAPI)
    
@@ -37,4 +57,5 @@ This project provides a powerful generative inpainting system that allows users 
    python demo/gradio_app.py
    ```
    Access the interface at the local URL provided in your terminal (typically (`http://127.0.0.1:7860`)).
+   
    
