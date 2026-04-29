@@ -6,7 +6,7 @@ This project provides a powerful generative inpainting system that allows users 
    <img width="30%" alt="dog_mask" src="https://github.com/user-attachments/assets/554a24b7-80f9-4549-adf9-596518d45148" />
    <img width="30%" alt="image" src="https://github.com/user-attachments/assets/5f4dcba3-d957-4062-a8e8-1b8aa2f9a6a5" />
    <img width="30%" alt="image (1)" src="https://github.com/user-attachments/assets/a0ee666b-d758-4bf1-a3cf-84042bd19a1f" />
-   <p><i>An examples of output</i></p>
+   <p><i>An example of output</i></p>
 </div>
 
 # Key Features
