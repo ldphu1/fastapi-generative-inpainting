@@ -1,7 +1,9 @@
 # fastapi-generative-inpainting
+
 This project provides a powerful generative inpainting system that allows users to remove objects or replace objects within images. By combining state-of-the-art Deep Learning models including LaMa, Stable Diffusion XL (SDXL), and BLIP, the project offers both a RESTful API and an interactive Web UI.
 
 # Key Features
+
 * **Object Removal**: Utilizes the (`Simple LaMa`) model to seamlessly erase unwanted elements from images without leaving artifacts.
 * **Object Replacement**: Leverages (`Stable Diffusion XL Inpainting`) (SDXL 1.0) to generate new objects that blend perfectly with the existing environment.
 * **Auto-Prompting**: If a prompt is not provided during replacement, the system uses the (`BLIP`) model to analyze the selected area and automatically generate a contextually appropriate prompt.
@@ -12,8 +14,11 @@ This project provides a powerful generative inpainting system that allows users 
 * (`demo/gradio_app.py`): A standalone Gradio application for a web-based demo featuring a brush tool for manual mask selection.
 
 # System Architecture
-   ```bash
-   ```
+
+The system features two main pipelines, both utilizing a core mask refinement process for seamless results:
+
+* **1. Object Removal (`/api/remove`)**: Uses the `Simple LaMa` model to instantly erase unwanted objects and contextually reconstruct the background.
+* **2. Object Replacement (`/api/replace`)**: A hybrid approach. It uses `BLIP` for auto-prompting (if no prompt is provided), `LaMa` to clear the original object, and `Stable Diffusion XL` to generate the new one. Finally, a dynamic Hybrid Blending (Poisson or Alpha) is applied to match lighting and colors perfectly.
 
 # Usage
 1. Running the API Server (FastAPI)
