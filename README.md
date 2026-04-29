@@ -13,21 +13,6 @@ This project provides a powerful generative inpainting system that allows users 
 
 # System Architecture
    ```bash
-    Remove Pipeline
-    Action -->|Remove Object| Refine1[Refine Mask]
-    Refine1 --> LaMa1[Simple LaMa Model]
-    LaMa1 --> Output[Final Image]
-    
-    Replace Pipeline
-    Action -->|Replace Object| CheckPrompt{Prompt Provided?}
-    CheckPrompt -->|No| BLIP[BLIP: Auto-Generate Prompt] --> Enrich[Enrich Prompt]
-    CheckPrompt -->|Yes| Enrich[Enrich Prompt]
-    
-    Enrich --> Refine2[Refine Masks]
-    Refine2 --> LaMa2[LaMa: Erase base object]
-    LaMa2 --> SDXL[SDXL: Generate new object]
-    SDXL --> Blend[Hybrid Blending]
-    Blend --> Output
    ```
 
 # Usage
