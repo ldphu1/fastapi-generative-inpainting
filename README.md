@@ -7,7 +7,7 @@ This project provides a powerful generative inpainting system that allows users 
 * **Auto-Prompting**: If a prompt is not provided during replacement, the system uses the (`BLIP`) model to analyze the selected area and automatically generate a contextually appropriate prompt.
 *  **Advanced Blending**: Implements a hybrid approach between Poisson Blending and standard Alpha Blending to ensure smooth edges and consistent lighting between generated content and the background.
 # Project Structure
-* (`main.py`): The entry point for the FastAPI server, providing /api/remove and /api/replace endpoints.
+* (`main.py`): The entry point for the FastAPI server, providing (`/api/remove`) and (`/api/replace`) endpoints.
 * (`ai_engine.py`): The core AI engine containing the (`InpaintingApp class`), which handles model loading, mask refinement, and image processing logic.
 * (`demo/gradio_app.py`): A standalone Gradio application for a web-based demo featuring a brush tool for manual mask selection.
 # Usage
