@@ -196,7 +196,6 @@ class InpaintingApp:
         if image_np is None or np.max(mask_np) == 0:
             raise ValueError("Invalid image or mask")
 
-        # Đã fix lỗi 3 biến unpack ở đây
         mask_lama, _, _ = self.refine_mask(mask_np)
 
         image_pil = Image.fromarray(image_np)
