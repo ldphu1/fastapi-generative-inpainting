@@ -236,7 +236,7 @@ class InpaintingApp:
         if image is None or np.max(final_mask) == 0:
             return None, None
 
-        mask_lama, _ = self.refine_mask(final_mask)
+        mask_lama, _, _ = self.refine_mask(final_mask)
 
         image_pil = Image.fromarray(image)
         mask_lama_pil = Image.fromarray(mask_lama)
