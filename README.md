@@ -13,12 +13,12 @@ This project provides a powerful generative inpainting system that allows users 
 
 # System Architecture
    ```bash
-   %% Remove Pipeline
+    Remove Pipeline
     Action -->|Remove Object| Refine1[Refine Mask]
     Refine1 --> LaMa1[Simple LaMa Model]
     LaMa1 --> Output[Final Image]
     
-    %% Replace Pipeline
+    Replace Pipeline
     Action -->|Replace Object| CheckPrompt{Prompt Provided?}
     CheckPrompt -->|No| BLIP[BLIP: Auto-Generate Prompt] --> Enrich[Enrich Prompt]
     CheckPrompt -->|Yes| Enrich[Enrich Prompt]
